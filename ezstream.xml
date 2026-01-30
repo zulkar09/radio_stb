@@ -1,0 +1,15 @@
+<ezstream>
+    <url>http://icecast:8000/autodj</url>
+    <sourcepassword>hackme</sourcepassword>
+    <format>MP3</format>
+    <filename>/etc/ezstream/playlist.m3u</filename>
+    <shuffle>1</shuffle>
+    <playlist_program>0</playlist_program>
+    <svrinfoname>Radio STB Saya</svrinfoname>
+    <svrinfogenre>Mixed</svrinfogenre>
+    <svrinfodescription>Auto Play dari STB</svrinfodescription>
+    <svrinfobitrate>128</svrinfobitrate>
+    <svrinfochannels>2</svrinfochannels>
+    <svrinfosamplerate>44100</svrinfosamplerate>
+    <svrinfopublic>0</svrinfopublic>
+</ezstream>

@@ -1,0 +1,15 @@
+# Jangan backup file rahasia
+.env
+
+# Jangan backup file lagu (karena terlalu besar untuk GitHub)
+musik/
+playlists/
+
+# Jangan backup file data yang sering berubah otomatis
+data_web.json
+*.log
+
+# Jangan backup folder sistem python
+__pycache__/
+venv/
+.pytest_cache/

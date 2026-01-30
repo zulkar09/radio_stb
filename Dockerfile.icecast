@@ -1,0 +1,13 @@
+FROM debian:bookworm-slim
+
+# Instal icecast2
+RUN apt-get update && apt-get install -y icecast2 && rm -rf /var/lib/apt/lists/*
+
+# Buat folder log dengan izin akses untuk semua (777) agar tidak bentrok group
+RUN mkdir -p /var/log/icecast2 && chmod 777 /var/log/icecast2
+
+# Kita jalankan sebagai user 'icecast2' (user bawaan dari instalasi icecast2)
+USER icecast2
+
+EXPOSE 8000
+CMD ["icecast2", "-c", "/etc/icecast2/icecast.xml"]

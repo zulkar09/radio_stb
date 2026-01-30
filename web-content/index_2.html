@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Komunitas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #2c5d3f; --bg: #f4f1ea; }
+        body { background-color: var(--bg); padding-bottom: 130px; font-family: sans-serif; }
+        .navbar { background-color: var(--primary) !important; }
+        .card-profile { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; border-top: 5px solid var(--primary); }
+        .sticky-player { position: fixed; bottom: 0; width: 100%; background: #111; color: white; padding: 15px; z-index: 1000; }
+        .page-section { display: none; padding: 20px 0; }
+        .active-section { display: block; }
+        .thumb { width: 100%; height: 130px; object-fit: cover; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="modal fade" id="modalBanner" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">PENGUMUMAN</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" id="txtBanner" style="white-space: pre-line;">
+                Memuat informasi...
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar navbar-expand navbar-dark sticky-top">
+    <div class="container justify-content-center">
+        <div class="navbar-nav small">
+            <a class="nav-link px-2" href="#" onclick="showPage('profil')">RADIO</a>
+            <a class="nav-link px-2" href="#" onclick="showPage('jadwal')">JADWAL</a>
+            <a class="nav-link px-2" href="#" onclick="showPage('infaq')">INFAQ</a>
+            <a class="nav-link px-2" href="#" onclick="showPage('market')">PASAR</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    <div id="profil" class="page-section active-section">
+        <div class="row">
+            <div class="col-12 mb-3"><div class="ratio ratio-16x9"><iframe id="v1" allowfullscreen></iframe></div></div>
+            <div class="col-6 mb-3"><div class="ratio ratio-16x9"><iframe id="v2" allowfullscreen></iframe></div></div>
+            <div class="col-6 mb-3"><div class="ratio ratio-16x9"><iframe id="v3" allowfullscreen></iframe></div></div>
+        </div>
+        <div class="card-profile text-center shadow-sm">
+            <h3 id="rNama">Radio Komunitas</h3>
+            <h6 id="rSlogan" class="text-success"></h6>
+            <p id="rDesk" class="mt-2 small text-muted"></p>
+        </div>
+    </div>
+
+    <div id="jadwal" class="page-section">
+        <div class="card-profile shadow-sm"><h5>📅 Jadwal Kajian</h5><div id="txtJadwal" style="white-space:pre-line"></div></div>
+    </div>
+
+    <div id="infaq" class="page-section">
+        <div class="card-profile shadow-sm"><h5>💰 Laporan Infaq</h5><div id="txtInfaq" style="white-space:pre-line"></div></div>
+    </div>
+
+    <div id="market" class="page-section">
+        <h5 class="text-center mb-3">🛒 Pasar Warga</h5>
+        <div id="listMarket" class="row"></div>
+    </div>
+</div>
+
+<div class="sticky-player text-center">
+    <p id="info-lagu" class="small mb-1 text-success">Memuat status...</p>
+    <audio id="radioPlayer" controls class="w-100">
+        <source src="https://radio.1st0p-k0p1.my.id/live" type="audio/mpeg">
+    </audio>
+</div>
+
+<script>
+    function loadData() {
+        fetch('data_web.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('info-lagu').innerText = data.status_radio || "Radio Online";
+            // Update data profil lainnya seperti sebelumnya...
+        });
+    }
+    setInterval(loadData, 10000); // Cek status lagu tiap 10 detik
+    window.onload = loadData;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showPage(id) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
+        document.getElementById(id).classList.add('active-section');
+    }
+
+    function loadData() {
+        // Fetch data dengan anti-cache
+        fetch('data_web.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+            // 1. Tampilkan Banner jika ada isinya
+            if (data.banner && data.banner.trim() !== "") {
+                document.getElementById('txtBanner').innerText = data.banner;
+                var myModal = new bootstrap.Modal(document.getElementById('modalBanner'));
+                myModal.show();
+            }
+
+            // 2. Update Profil Teks
+            document.getElementById('rNama').innerText = data.nama_radio || "Radio Komunitas";
+            document.getElementById('rSlogan').innerText = data.slogan || "";
+            document.getElementById('rDesk').innerText = data.deskripsi || "";
+            
+            // 3. Update Video
+            if(data.video1) document.getElementById('v1').src = "https://www.youtube.com/embed/" + data.video1;
+            if(data.video2) document.getElementById('v2').src = "https://www.youtube.com/embed/" + data.video2;
+            if(data.video3) document.getElementById('v3').src = "https://www.youtube.com/embed/" + data.video3;
+            
+            // 4. Update Info Lainnya
+            document.getElementById('txtJadwal').innerText = data.jadwal || "Belum ada jadwal.";
+            document.getElementById('txtInfaq').innerText = data.infaq || "Belum ada data.";
+            // Tambahkan di dalam fetch('data_web.json')...
+            document.getElementById('rSlogan').innerText = data.status_radio || data.slogan;
+
+            // 5. Update Marketplace
+            let html = "";
+            (data.produk || []).forEach(p => {
+                html += `
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="card p-2 text-center small border-0 shadow-sm h-100">
+                        <img src="images/${p.img}" class="thumb" onerror="this.src='https://via.placeholder.com/150'">
+                        <b class="d-block mt-1 text-truncate">${p.nama}</b>
+                        <span class="text-success"><b>${p.harga}</b></span>
+                        <a href="https://wa.me/${p.wa}" class="btn btn-sm btn-success mt-1 shadow-sm">Pesan</a>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('listMarket').innerHTML = html;
+        });
+    }
+
+    // Fungsi otomatis untuk memperbaiki jalur audio jika diakses via IP
+    function fixAudioPath() {
+        const player = document.getElementById('radioPlayer');
+        const source = player.getElementsByTagName('source')[0];
+        
+        // Jika diakses lewat IP lokal (bukan domain my.id)
+        if (window.location.hostname.includes('192.168.')) {
+            source.src = "http://" + window.location.hostname + ":8000/autodj";
+            player.load();
+        }
+    }
+
+    window.onload = () => {
+        loadData();
+        fixAudioPath();
+    };
+</script>
+</body>
+</html>

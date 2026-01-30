@@ -1,0 +1,65 @@
+services:
+  icecast:
+    build:
+      context: .
+      dockerfile: Dockerfile.icecast
+    container_name: icecast
+    ports:
+      - "8000:8000"
+    environment:
+      - ICECAST_SOURCE_PASSWORD=${ICECAST_SOURCE_PW}
+      - ICECAST_ADMIN_PASSWORD=${ICECAST_ADMIN_PW}
+    volumes:
+      - ./icecast.xml:/etc/icecast2/icecast.xml
+    networks:
+      - radio-network
+    restart: always
+
+  radio-player:
+    build: .
+    container_name: radio-player
+    volumes:
+      - ./musik:/app/musik
+      - ./web-content:/app/web-content
+    depends_on:
+      - icecast
+    networks:
+      - radio-network
+    restart: always
+
+  uploader:
+    build: .
+    container_name: uploader
+    command: streamlit run uploader_app.py --server.port 8501
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    networks:
+      - radio-network
+    restart: always
+
+  website:
+    image: nginx:alpine
+    container_name: website
+    volumes:
+      - ./web-content:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    networks:
+      - radio-network
+    restart: always
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    command: tunnel --no-autoupdate run --token --protocol http2 ${CF_TOKEN}
+    dns:
+      - 1.1.1.1
+    networks:
+      - radio-network
+
+networks:
+  radio-network:
+    driver: bridge

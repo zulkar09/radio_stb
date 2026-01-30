@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ices>
+    <background>0</background>
+    <loglevel>4</loglevel>
+    <consolelog>1</consolelog>
+    <stream>
+        <metadata>
+            <name>Radio STB Autoplay</name>
+            <genre>Mix</genre>
+            <description>Siaran Otomatis STB</description>
+        </metadata>
+        <input>
+            <module>playlist</module>
+            <param name="type">script</param>
+            <param name="file">/app/playlist.sh</param>
+            <param name="random">1</param>
+            <param name="restart-after-error">1</param>
+        </input>
+        <instance>
+            <hostname>icecast</hostname>
+            <port>8000</port>
+            <password>hackme</password>
+            <mount>/autodj</mount>
+        </instance>
+    </stream>
+</ices>
